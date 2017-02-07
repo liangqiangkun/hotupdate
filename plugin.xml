@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin id="com.mLink.cordova.plugin.hotUpdate" version="1.5.2" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <name>Hot Code Update Plugin</name>
+  <description>Cordova plugin to perform code updates on the fly</description>
+  <license>MIT</license>
+  <keywords>cordova,html,hot,update</keywords>
+  <author>Liang</author>
+  <!-- JavaScrip Library Sources -->
+  <js-module name="hotUpdate" src="www/hotUpdate.js">
+    <clobbers target="hotUpdate"/>
+  </js-module>
+
+  <!-- Config.xml preferences -->
+  <config-file parent="/*" target="config.xml">
+    <preference name="loadUrlTimeoutValue" value="60000"/>
+  </config-file>
+
+  <platform name="ios">
+
+    <!-- Plugin inclusion in Cordova config.xml -->
+    <config-file parent="/*" target="config.xml">
+      <feature name="hotUpdate">
+        <param name="ios-package" value="CDVHotUpdate"/>
+        <param name="onload" value="true"/>
+      </feature>
+    </config-file>
+    <!-- iOS9 http安全协议 -->  
+    <config-file platform="ios" target="-Info.plist" parent="NSAppTransportSecurity">
+      <dict>
+          <key>NSAllowsArbitraryLoads</key>
+          <true/>
+      </dict>
+    </config-file>
+    <!-- Plugin source code -->
+    <source-file src="src/ios/CDVHotUpdate.m"/>
+    <header-file src="src/ios/CDVHotUpdate.h"/>
+    <header-file src="src/ios/MBProgressHUD.h"/>
+    <source-file src="src/ios/MBProgressHUD.m"/>
+    <!-- AFNetworking -->
+    <header-file src="src/ios/AFNetworking/AFHTTPSessionManager.h" target-dir="AFNetworking/"/>
+    <source-file src="src/ios/AFNetworking/AFHTTPSessionManager.m" target-dir="AFNetworking/"/>
+    <header-file src="src/ios/AFNetworking/AFNetworkReachabilityManager.h" target-dir="AFNetworking/"/>
+    <source-file src="src/ios/AFNetworking/AFNetworkReachabilityManager.m" target-dir="AFNetworking/"/>
+    <header-file src="src/ios/AFNetworking/AFNetworking.h" target-dir="AFNetworking/"/>
+    <header-file src="src/ios/AFNetworking/AFSecurityPolicy.h" target-dir="AFNetworking/"/>
+    <source-file src="src/ios/AFNetworking/AFSecurityPolicy.m" target-dir="AFNetworking/"/>
+    <header-file src="src/ios/AFNetworking/AFURLRequestSerialization.h" target-dir="AFNetworking/"/>
+    <source-file src="src/ios/AFNetworking/AFURLRequestSerialization.m" target-dir="AFNetworking/"/>
+    <header-file src="src/ios/AFNetworking/AFURLResponseSerialization.h" target-dir="AFNetworking/"/>
+    <source-file src="src/ios/AFNetworking/AFURLResponseSerialization.m" target-dir="AFNetworking/"/>
+    <header-file src="src/ios/AFNetworking/AFURLSessionManager.h" target-dir="AFNetworking/"/>
+    <source-file src="src/ios/AFNetworking/AFURLSessionManager.m" target-dir="AFNetworking/"/>
+    <!-- UIKit+AFNetworking -->
+    <header-file src="src/ios/UIKit+AFNetworking/AFAutoPurgingImageCache.h" target-dir="UIKit+AFNetworking/"/>
+    <source-file src="src/ios/UIKit+AFNetworking/AFAutoPurgingImageCache.m" target-dir="UIKit+AFNetworking/"/>
+    <header-file src="src/ios/UIKit+AFNetworking/AFImageDownloader.h" target-dir="UIKit+AFNetworking/"/>
+    <source-file src="src/ios/UIKit+AFNetworking/AFImageDownloader.m" target-dir="UIKit+AFNetworking/"/>
+    <header-file src="src/ios/UIKit+AFNetworking/AFNetworkActivityIndicatorManager.h" target-dir="UIKit+AFNetworking/"/>
+    <source-file src="src/ios/UIKit+AFNetworking/AFNetworkActivityIndicatorManager.m" target-dir="UIKit+AFNetworking/"/>
+    <header-file src="src/ios/UIKit+AFNetworking/UIActivityIndicatorView+AFNetworking.h" target-dir="UIKit+AFNetworking/"/>
+    <source-file src="src/ios/UIKit+AFNetworking/UIActivityIndicatorView+AFNetworking.m" target-dir="UIKit+AFNetworking/"/>
+    <header-file src="src/ios/UIKit+AFNetworking/UIButton+AFNetworking.h" target-dir="UIKit+AFNetworking/"/>
+    <source-file src="src/ios/UIKit+AFNetworking/UIButton+AFNetworking.m" target-dir="UIKit+AFNetworking/"/>
+    <header-file src="src/ios/UIKit+AFNetworking/UIImage+AFNetworking.h" target-dir="UIKit+AFNetworking/"/>
+    <header-file src="src/ios/UIKit+AFNetworking/UIImageView+AFNetworking.h" target-dir="UIKit+AFNetworking/"/>
+    <source-file src="src/ios/UIKit+AFNetworking/UIImageView+AFNetworking.m" target-dir="UIKit+AFNetworking/"/>
+    <header-file src="src/ios/UIKit+AFNetworking/UIKit+AFNetworking.h" target-dir="UIKit+AFNetworking/"/>
+    <header-file src="src/ios/UIKit+AFNetworking/UIProgressView+AFNetworking.h" target-dir="UIKit+AFNetworking/"/>
+    <source-file src="src/ios/UIKit+AFNetworking/UIProgressView+AFNetworking.m" target-dir="UIKit+AFNetworking/"/>
+    <header-file src="src/ios/UIKit+AFNetworking/UIRefreshControl+AFNetworking.h" target-dir="UIKit+AFNetworking/"/>
+    <source-file src="src/ios/UIKit+AFNetworking/UIRefreshControl+AFNetworking.m" target-dir="UIKit+AFNetworking/"/>
+    <header-file src="src/ios/UIKit+AFNetworking/UIWebView+AFNetworking.h" target-dir="UIKit+AFNetworking/"/>
+    <source-file src="src/ios/UIKit+AFNetworking/UIWebView+AFNetworking.m" target-dir="UIKit+AFNetworking/"/>
+    <!-- SSZipArchive -->
+    <source-file src="src/ios/SSZipArchive/aes/aes.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/aes_via_ace.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/aescrypt.c" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/aeskey.c" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/aesopt.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/aestab.c" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/aestab.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/brg_endian.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/brg_types.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/entropy.c" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/entropy.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/fileenc.c" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/fileenc.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/hmac.c" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/hmac.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/prng.c" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/prng.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/pwd2key.c" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/pwd2key.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/sha1.c" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/aes/sha1.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/Info.plist" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/minizip/crypt.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/minizip/ioapi.c" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/minizip/ioapi.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/minizip/mztools.c" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/minizip/mztools.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/minizip/unzip.c" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/minizip/unzip.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/minizip/zip.c" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/minizip/zip.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/SSZipArchive.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/SSZipArchive.m" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/SSZipCommon.h" target-dir="SSZipArchive"/>
+    <source-file src="src/ios/SSZipArchive/ZipArchive.h" target-dir="SSZipArchive"/>
+    <!-- 导入iOS类库 -->
+    <framework src="libz.tbd" />
+  </platform>
+
+
+
+  <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="hotUpdate">
+                <param name="android-package" value="com.mLink.cordova.plugin.hotUpdate.hotUpdate"/>
+            </feature>
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+            <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+        </config-file>
+        
+        <source-file src="src/android/hotUpdate.java" target-dir="src/com/cordova/plugin/com.mLink.cordova.plugin.hotUpdate" />
+
+      </platform>
+</plugin>
