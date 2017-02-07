@@ -35,7 +35,6 @@
             }
         }
     }
-    
     //重定向app加载index页面的路径
     [self resetIndexPageToExternalStorage];
 }
@@ -44,7 +43,6 @@
     //首先获取下载的路径
     NSString *downLoadURL = [command argumentAtIndex:0];
     if (!downLoadURL) {
-        
         CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"参数有误，请检查url"];
         [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
         return;
@@ -62,6 +60,8 @@
             [self downLoadZipFromURL:downLoadURL toPath:zipTempPath command:command];
         }else{
             NSLog(@"zip资源文件夹创建失败！");
+            CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"zip资源文件夹创建失败！"];
+            [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
         }
     }else{
         //此时存在该文件夹，直接下载zip资源即可
@@ -96,6 +96,8 @@
                     if (error) {
                         //此时创建文件夹失败
                         NSLog(@"创建保存www资源的文件夹失败");
+                        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"创建保存www资源的文件夹失败"];
+                        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
                         return ;
                     }
                 }
@@ -103,6 +105,9 @@
                     //此时已经解压成功，重定向app'的index页面
                     [self resetIndexPageToExternalStorage];
                     [self.viewController viewDidLoad];
+                }else{
+                    CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"解压zip资源失败"];
+                    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
                 }
             }
         });
