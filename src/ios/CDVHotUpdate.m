@@ -23,7 +23,7 @@
 -(void)pluginInitialize{
     
     NSString *documentPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,  NSUserDomainMask,YES) objectAtIndex:0];
-    _externalStoragePath = [documentPath stringByAppendingString:@"/update/wwwResource"];
+    _externalStoragePath = [documentPath stringByAppendingString:@"/update"];
     //首先判断app的启动状态是否为app版本升级后的第一次运行，如果是，则删除旧版本的外部存储资源
     if ([self isAppFirstRunAfterUpdate]) {
         NSError *error = nil;
@@ -37,12 +37,26 @@
     }
     //重定向app加载index页面的路径
     [self resetIndexPageToExternalStorage];
+    NSFileManager * fileManager = [NSFileManager defaultManager];
+    if (![fileManager fileExistsAtPath:_externalStoragePath]) {
+        //此时外部沙盒中没有www资源
+        //拷贝appbundle下的资源到沙盒
+        NSString *wwwPath = [[NSBundle mainBundle] pathForResource:@"www" ofType:@""];
+        NSLog(@"-------wwwPath----------%@",wwwPath);
+        NSLog(@"-------_externalStoragePath----------%@",_externalStoragePath);
+        if([self copyUISouceFrom:wwwPath toDesPath:_externalStoragePath]){
+            //此时将www资源拷贝至沙盒成功
+            NSLog(@"成功将www资源拷贝至沙盒路径");
+        }
+    }
+    
 }
 
 - (void)downLoadAndUpdateHTMLResouce:(CDVInvokedUrlCommand *)command{
     //首先获取下载的路径
     NSString *downLoadURL = [command argumentAtIndex:0];
     if (!downLoadURL) {
+        
         CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"参数有误，请检查url"];
         [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
         return;
@@ -60,8 +74,6 @@
             [self downLoadZipFromURL:downLoadURL toPath:zipTempPath command:command];
         }else{
             NSLog(@"zip资源文件夹创建失败！");
-            CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"zip资源文件夹创建失败！"];
-            [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
         }
     }else{
         //此时存在该文件夹，直接下载zip资源即可
@@ -90,36 +102,58 @@
             if (!error)
             {
                 //解压下载的zip资源
-                if (![[NSFileManager defaultManager] fileExistsAtPath:_externalStoragePath]) {
+                if (![[NSFileManager defaultManager] fileExistsAtPath:[_externalStoragePath stringByAppendingString:@"/www/"]]) {
                     NSError *error = nil;
-                    [[NSFileManager defaultManager] createDirectoryAtPath:_externalStoragePath withIntermediateDirectories:YES attributes:nil error:&error];
+                    [[NSFileManager defaultManager] createDirectoryAtPath:[_externalStoragePath stringByAppendingString:@"/www/"] withIntermediateDirectories:YES attributes:nil error:&error];
                     if (error) {
                         //此时创建文件夹失败
                         NSLog(@"创建保存www资源的文件夹失败");
-                        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"创建保存www资源的文件夹失败"];
-                        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
                         return ;
                     }
                 }
-                if([self unzipUISouce:zipTempPath toDestinationFilePath:_externalStoragePath]){
+                if([self unzipUISouce:zipTempPath toDestinationFilePath:[_externalStoragePath stringByAppendingString:@"/www/"]]){
                     //此时已经解压成功，重定向app'的index页面
-                    [self resetIndexPageToExternalStorage];
                     [self.viewController viewDidLoad];
-                }else{
-                    CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"解压zip资源失败"];
-                    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
                 }
             }
         });
-        
     }];
     [task resume];
-    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (!_hud) {
+            _hud = [MBProgressHUD showHUDAddedTo:self.viewController.view animated:YES];
+            // Set the determinate mode to show task progress.
+            _hud.mode = MBProgressHUDModeDeterminateHorizontalBar;
+            _hud.label.text = @"正在下载...";
+        }
+    });
+}
+//拷贝appbundle下的资源到沙盒
+-(BOOL)copyUISouceFrom:(NSString *)soucePath toDesPath:(NSString *)desPath{
+    NSURL *localWWWUrl = [NSURL fileURLWithPath:soucePath];
+    NSURL *externalWWWUrl = [NSURL fileURLWithPath:[desPath stringByAppendingString:@"/www"]];
+    NSError *error = nil;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    BOOL isWWWFolderExists = [fileManager fileExistsAtPath:desPath];
+    if (isWWWFolderExists) {
+        [fileManager removeItemAtURL:[externalWWWUrl URLByDeletingLastPathComponent] error:&error];
+    }
+    if ([fileManager createDirectoryAtPath:desPath withIntermediateDirectories:YES attributes:nil error:&error]) {
+        
+        [fileManager copyItemAtURL:localWWWUrl toURL:externalWWWUrl error:&error];
+        if (error) {
+            NSLog(@"拷贝资源出错 %@",error.localizedDescription);
+            return NO;
+        } else {
+            return YES;
+        }
+    }else{
+        return NO;
+    }
 }
 //解压zip资源
 -(BOOL)unzipUISouce:(NSString *)zipFullPath toDestinationFilePath:(NSString *)destinationFilePath{
     NSError *error = nil;
-    NSLog(@"zipFullPath---%@",zipFullPath);
     NSLog(@"destinationFilePath---%@",destinationFilePath);
     if([SSZipArchive unzipFileAtPath:zipFullPath toDestination:destinationFilePath overwrite:YES password:nil error:&error]){
         NSLog(@"解压成功");
@@ -139,7 +173,6 @@
         //此时存在，加载外部资源
         if ([self.viewController isKindOfClass:[CDVViewController class]]) {
             ((CDVViewController *)self.viewController).wwwFolderName = wwwURLStr;
-            
         }
     }
 }
@@ -163,18 +196,11 @@
 }
 //创建进度条
 - (void)setProgressViewWithProgress:(NSProgress *)progress{
-    
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (!_hud) {
-            _hud = [MBProgressHUD showHUDAddedTo:self.viewController.view animated:YES];
-            // Set the determinate mode to show task progress.
-            _hud.mode = MBProgressHUDModeDeterminate;
-            _hud.label.text = @"正在下载并解压...";
-        }
-        
         [MBProgressHUD HUDForView:self.viewController.view].progress = progress.fractionCompleted;
     });
 }
+//判断当前网络状态
 @end
 
 
